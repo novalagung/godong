@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
+	"regexp"
 	"strings"
 )
 
@@ -11,8 +12,8 @@ var (
 	Debug         bool   = false
 	Prefix        string = "Action"
 	Separator     string = "_"
-	DefaultAction string = "Index"
-	LowercaseURL  bool   = false
+	DefaultAction string = ""
+	UrlMode       string = "dashed"
 )
 
 const (
@@ -29,7 +30,7 @@ func Route(o interface{}) {
 		method := reflectType.Method(i)
 		methodName := getMethodName(method)
 		methodBody := reflectValue.MethodByName(method.Name)
-		routePath := slash + controllerName + methodName
+		routePath := getRoutePath(slash, controllerName, methodName)
 
 		if i == 0 && DefaultAction == strings.Replace(methodName, slash, "", -1) {
 			handleRoute(slash, methodBody)
@@ -48,11 +49,22 @@ func getMethodName(method reflect.Method) string {
 	return methodName
 }
 
-func handleRoute(routePath string, methodBody reflect.Value) {
-	if LowercaseURL {
-		routePath = strings.ToLower(routePath)
+func getRoutePath(slash string, controllerName string, methodName string) string {
+	routePath := slash + controllerName + methodName
+
+	if UrlMode == "dashed" {
+		reg, err := regexp.Compile("([a-z])([A-Z])")
+		if err != nil {
+			return routePath
+		}
+
+		routePath = strings.ToLower(reg.ReplaceAllString(routePath, "$1-$2"))
 	}
 
+	return routePath
+}
+
+func handleRoute(routePath string, methodBody reflect.Value) {
 	http.HandleFunc(routePath, func(w http.ResponseWriter, r *http.Request) {
 		methodHandler := methodBody.Interface().(func(w http.ResponseWriter, r *http.Request))
 		methodHandler(w, r)

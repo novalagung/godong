@@ -15,6 +15,10 @@ func (d *Dashboard) Action_Home(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("home")
 }
 
-func (d *Dashboard) Action_About(w http.ResponseWriter, r *http.Request) {
+func (d *Dashboard) Action_AboutUs(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("about")
+}
+
+func (d *Dashboard) Action_DataAnalytic_GetData(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("data-analytic/get-data")
 }
