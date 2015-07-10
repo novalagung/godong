@@ -20,6 +20,13 @@
 
     <section class="main-content">
       <h1>
+<a id="godong" class="anchor" href="#godong" aria-hidden="true"><span class="octicon octicon-link"></span></a>Godong</h1>
+
+<p>Easiest dynamic http route handler for golang</p>
+
+<p><img src="http://oi61.tinypic.com/jip1qb.jpg" alt="Godong logo"></p>
+
+<h1>
 <a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h1>
 
 <p>Godong is dynamic route handler for golang. Godong will automatically create route and the handler based on the method of registered struct.</p>
@@ -49,7 +56,11 @@
 <span class="pl-k">type</span> <span class="pl-v">Dashboard</span> <span class="pl-k">struct</span>{}
 
 <span class="pl-k">func</span> <span class="pl-en">(<span class="pl-v">d</span> *<span class="pl-v">Dashboard</span>) <span class="pl-en">Action_Index</span></span>(<span class="pl-v">w</span> <span class="pl-v">http</span>.<span class="pl-v">ResponseWriter</span>, <span class="pl-v">r</span> *<span class="pl-v">http</span>.<span class="pl-v">Request</span>) {
-    fmt.<span class="pl-c1">Fprintf</span>(w, <span class="pl-s"><span class="pl-pds">"</span>index<span class="pl-pds">"</span></span>)
+    fmt.<span class="pl-c1">Fprintf</span>(w, <span class="pl-s"><span class="pl-pds">"</span>/dashboard/index<span class="pl-pds">"</span></span>)
+}
+
+<span class="pl-k">func</span> <span class="pl-en">(<span class="pl-v">d</span> *<span class="pl-v">Dashboard</span>) <span class="pl-en">Action_AboutUs</span></span>(<span class="pl-v">w</span> <span class="pl-v">http</span>.<span class="pl-v">ResponseWriter</span>, <span class="pl-v">r</span> *<span class="pl-v">http</span>.<span class="pl-v">Request</span>) {
+    fmt.<span class="pl-c1">Fprintf</span>(w, <span class="pl-s"><span class="pl-pds">"</span>/dashboard/about-us<span class="pl-pds">"</span></span>)
 }</pre></div>
 
 <p>On <code>main</code> package, include the package of our <code>struct</code>. Also include the <code>godong</code> library. Then create empty object variabel using <code>struct Dashboard</code>. Call <code>godong.Route</code>, use the variabel we just created as parameter. Pass it by reference.</p>
