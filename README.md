@@ -1,4 +1,4 @@
-![Godong logo](http://oi58.tinypic.com/az78fs.jpg)
+![Godong logo](http://oi59.tinypic.com/2v29m5g.jpg)
 
 Godong
 ======
