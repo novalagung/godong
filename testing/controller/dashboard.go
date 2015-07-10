@@ -8,17 +8,17 @@ import (
 type Dashboard struct{}
 
 func (d *Dashboard) Action_Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("index")
+	fmt.Fprintf(w, "index")
 }
 
 func (d *Dashboard) Action_Home(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("home")
+	fmt.Fprintf(w, "home")
 }
 
 func (d *Dashboard) Action_AboutUs(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("about")
+	fmt.Fprintf(w, "about")
 }
 
 func (d *Dashboard) Action_DataAnalytic_GetData(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("data-analytic/get-data")
+	fmt.Fprintf(w, "data-analytic/get-data")
 }
