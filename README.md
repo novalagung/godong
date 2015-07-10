@@ -2,8 +2,20 @@ Introduction
 ======
 Godong is dynamic route handler for golang, so you don't need to register it manually. Godong will automatically create route handler based on the method inside of struct.
 
+Instalation
+======
+Use `go get` to download the library.
+
+```
+go get github.com/novalagung/godong
+```
+
 Simple example
 ======
+Godong is very easy to use. First you need to prepare a file which contains a struct. The struct will become the controller name.
+
+And then create a method with parameters is same as `http.handleFunc` callback function. The name of the method must start with `Action_`.
+
 ```go
 package controller
 
@@ -19,12 +31,16 @@ func (d *Dashboard) Action_Index(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
+After that on main package, include the file that we've ben created just now. Also include the `godong` library. Then create empty variabel which type is our controller. And apply `godong.Route` function to it.
+
+Basically we have completelly succeed registering all method inside struct `Dashboard` as an route. The method name will become the route name.
+
 ```go
 package main
 
 import (
 	"github.com/novalagung/godong"
-	"github.com/novalagung/godong/testing/controller"
+	"github.com/novalagung/test/controller"
 	"net/http"
 )
 
@@ -36,7 +52,9 @@ func main() {
 }
 ```
 
-### Documentation
+Godong only cover the declaration. So you need to call `http.ListenAndServer`. This make godong special, you also can register custom route (like usual) which is not included on the controller.
+
+Documentation
 ======
 not yet
 
