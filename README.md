@@ -2,7 +2,7 @@ Godong
 ======
 Easiest dynamic http route handler for golang
 
-![Godong logo](http://oi61.tinypic.com/jip1qb.jpg)
+![Godong logo](http://oi59.tinypic.com/2zoi3a8.jpg)
 
 Introduction
 ======
