@@ -63,8 +63,7 @@
 )
 
 <span class="pl-k">func</span> <span class="pl-en">main</span>() {
-    <span class="pl-k">var</span> <span class="pl-smi">dashboard</span> controller.<span class="pl-smi">Dashboard</span>
-    godong.<span class="pl-c1">Route</span>(&amp;dashboard)
+    godong.<span class="pl-c1">Route</span>(&amp;controller.<span class="pl-smi">Dashboard</span>{})
 
     http.<span class="pl-c1">ListenAndServe</span>(<span class="pl-s"><span class="pl-pds">"</span>:3000<span class="pl-pds">"</span></span>, <span class="pl-c1">nil</span>)
 }</pre></div>
