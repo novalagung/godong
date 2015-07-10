@@ -1,8 +1,8 @@
+![Godong logo](http://oi58.tinypic.com/az78fs.jpg)
+
 Godong
 ======
 Easiest dynamic http route handler for golang
-
-![Godong logo](http://oi58.tinypic.com/az78fs.jpg)
 
 Introduction
 ======
