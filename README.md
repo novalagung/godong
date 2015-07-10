@@ -33,7 +33,11 @@ import (
 type Dashboard struct{}
 
 func (d *Dashboard) Action_Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "index")
+	fmt.Fprintf(w, "/dashboard/index")
+}
+
+func (d *Dashboard) Action_AboutUs(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "/dashboard/about-us")
 }
 ```
 
