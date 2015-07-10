@@ -1,3 +1,9 @@
+Godong
+======
+Easiest dynamic http route handler for golang
+
+![Godong logo](http://oi61.tinypic.com/jip1qb.jpg)
+
 Introduction
 ======
 Godong is dynamic route handler for golang. Godong will automatically create route and the handler based on the method of registered struct.
