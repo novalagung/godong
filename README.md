@@ -1,10 +1,10 @@
 # godong
+======
 
 Godong is dynamic route handler for golang, so you don't need to register it manually. Godong will automatically create route handler based on the method inside of struct.
 
----
-
 ### Simple example
+======
 
 ```go
 package controller
@@ -38,21 +38,18 @@ func main() {
 }
 ```
 
----
-
 ### Documentation
+======
 
 not yet
 
----
-
 ### Contribution
+======
 
 Feel free to add contribution to this project by fork -> pull request
 
----
-
 ### License
+======
 
 The MIT License (MIT)
 
