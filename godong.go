@@ -9,9 +9,10 @@ import (
 )
 
 const (
-	slash              string = "/"
 	UrlModeDashed      int    = 0
 	UrlModeCapitalized int    = 1
+	actionSlash        string = "/"
+	actionMapSeparator string = "."
 )
 
 var (
@@ -32,11 +33,11 @@ func Route(o interface{}) {
 		method := reflectType.Method(i)
 		methodName := getMethodName(method)
 		methodBody := reflectValue.MethodByName(method.Name)
-		routePath := getRoutePath(slash, controllerName, methodName)
-		actionMap := strings.Join([]string{controllerName, method.Name}, ".")
+		routePath := getRoutePath(actionSlash, controllerName, methodName)
+		actionMap := strings.Join([]string{controllerName, method.Name}, actionMapSeparator)
 
 		if actionMap == DefaultAction {
-			handleRoute(slash, methodBody, actionMap)
+			handleRoute(actionSlash, methodBody, actionMap)
 		}
 
 		handleRoute(routePath, methodBody, actionMap)
@@ -47,13 +48,13 @@ func getMethodName(method reflect.Method) string {
 	methodName := method.Name
 
 	methodName = strings.Replace(methodName, Prefix, "", -1)
-	methodName = strings.Replace(methodName, Separator, slash, -1)
+	methodName = strings.Replace(methodName, Separator, actionSlash, -1)
 
 	return methodName
 }
 
-func getRoutePath(slash string, controllerName string, methodName string) string {
-	routePath := slash + controllerName + methodName
+func getRoutePath(actionSlash string, controllerName string, methodName string) string {
+	routePath := actionSlash + controllerName + methodName
 
 	if UrlMode == UrlModeDashed {
 		reg, err := regexp.Compile("([a-z])([A-Z])")
