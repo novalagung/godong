@@ -8,16 +8,18 @@ import (
 	"strings"
 )
 
+const (
+	slash              string = "/"
+	UrlModeDashed      int    = 0
+	UrlModeCapitalized int    = 1
+)
+
 var (
 	Debug         bool   = false
 	Prefix        string = "Action"
 	Separator     string = "_"
 	DefaultAction string = ""
-	UrlMode       string = "dashed"
-)
-
-const (
-	slash string = "/"
+	UrlMode       int    = UrlModeDashed
 )
 
 func Route(o interface{}) {
@@ -52,7 +54,7 @@ func getMethodName(method reflect.Method) string {
 func getRoutePath(slash string, controllerName string, methodName string) string {
 	routePath := slash + controllerName + methodName
 
-	if UrlMode == "dashed" {
+	if UrlMode == UrlModeDashed {
 		reg, err := regexp.Compile("([a-z])([A-Z])")
 		if err != nil {
 			return routePath
