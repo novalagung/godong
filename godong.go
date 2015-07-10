@@ -33,12 +33,13 @@ func Route(o interface{}) {
 		methodName := getMethodName(method)
 		methodBody := reflectValue.MethodByName(method.Name)
 		routePath := getRoutePath(slash, controllerName, methodName)
+		actionMap := strings.Join([]string{controllerName, method.Name}, ".")
 
-		if i == 0 && DefaultAction == strings.Replace(methodName, slash, "", -1) {
-			handleRoute(slash, methodBody)
+		if actionMap == DefaultAction {
+			handleRoute(slash, methodBody, actionMap)
 		}
 
-		handleRoute(routePath, methodBody)
+		handleRoute(routePath, methodBody, actionMap)
 	}
 }
 
@@ -66,13 +67,12 @@ func getRoutePath(slash string, controllerName string, methodName string) string
 	return routePath
 }
 
-func handleRoute(routePath string, methodBody reflect.Value) {
-	http.HandleFunc(routePath, func(w http.ResponseWriter, r *http.Request) {
-		methodHandler := methodBody.Interface().(func(w http.ResponseWriter, r *http.Request))
-		methodHandler(w, r)
-	})
+func handleRoute(routePath string, methodBody reflect.Value, actionMap string) {
+	methodHandler := methodBody.Interface().(func(w http.ResponseWriter, r *http.Request))
+	http.HandleFunc(routePath, methodHandler)
 
 	if Debug {
 		fmt.Println("route", routePath)
+		fmt.Println("   ->", actionMap)
 	}
 }
