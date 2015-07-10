@@ -43,8 +43,7 @@ import (
 )
 
 func main() {
-	var dashboard controller.Dashboard
-	godong.Route(&dashboard)
+	godong.Route(&controller.Dashboard{})
 
 	http.ListenAndServe(":3000", nil)
 }
