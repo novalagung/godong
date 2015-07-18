@@ -2,13 +2,14 @@ package main
 
 import (
 	"github.com/novalagung/godong"
-	"github.com/novalagung/godong/testing/controller"
+	"github.com/novalagung/godong/test/controller"
 	"net/http"
 )
 
 func main() {
 	godong.Debug = true
 	godong.Route(&controller.Dashboard{})
+	godong.Route(&controller.Analytic{})
 
 	http.ListenAndServe(":3000", nil)
 }

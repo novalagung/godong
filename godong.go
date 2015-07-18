@@ -1,8 +1,10 @@
 package godong
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"reflect"
 	"regexp"
 	"strings"
@@ -31,30 +33,28 @@ func Route(o interface{}) {
 
 	for i := 0; i < reflectType.NumMethod(); i++ {
 		method := reflectType.Method(i)
-		methodName := getMethodName(method)
-		methodBody := reflectValue.MethodByName(method.Name)
-		routePath := getRoutePath(actionSlash, controllerName, methodName)
-		actionMap := strings.Join([]string{controllerName, method.Name}, actionMapSeparator)
+		routePath := getRoutePath(method, controllerName)
+		actionMap := fmt.Sprintf("%s%s%s", controllerName, actionMapSeparator, method.Name)
 
 		if actionMap == DefaultAction {
-			handleRoute(actionSlash, methodBody, actionMap)
+			handleRoute(reflectValue, method, controllerName, actionSlash, actionMap)
 		}
 
-		handleRoute(routePath, methodBody, actionMap)
+		handleRoute(reflectValue, method, controllerName, routePath, actionMap)
 	}
 }
 
-func getMethodName(method reflect.Method) string {
-	methodName := method.Name
+func getRoutePath(method reflect.Method, controllerName string) string {
+	validMethodName := (func() string {
+		result := method.Name
 
-	methodName = strings.Replace(methodName, Prefix, "", -1)
-	methodName = strings.Replace(methodName, Separator, actionSlash, -1)
+		result = strings.Replace(result, Prefix, "", -1)
+		result = strings.Replace(result, Separator, actionSlash, -1)
 
-	return methodName
-}
+		return result
+	}())
 
-func getRoutePath(actionSlash string, controllerName string, methodName string) string {
-	routePath := actionSlash + controllerName + methodName
+	routePath := actionSlash + controllerName + validMethodName
 
 	if UrlMode == UrlModeDashed {
 		reg, err := regexp.Compile("([a-z])([A-Z])")
@@ -68,12 +68,33 @@ func getRoutePath(actionSlash string, controllerName string, methodName string) 
 	return routePath
 }
 
-func handleRoute(routePath string, methodBody reflect.Value, actionMap string) {
+func handleRoute(reflectValue reflect.Value, method reflect.Method, controllerName, routePath string, actionMap string) {
+	if Debug {
+		fmt.Println("route", routePath)
+	}
+
+	var err error
+
+	errorInvalidActionSchema := errors.New(fmt.Sprintf("Invalid action parameter.\n      Action %s should be written in:\n      func (d *%s) %s (w http.ResponseWriter, r *http.Request)", actionMap, controllerName, method.Name))
+	methodBody := reflectValue.MethodByName(method.Name)
+
+	if methodBody.Type().NumIn() != 2 {
+		err = errorInvalidActionSchema
+	} else if methodBody.Type().In(0).String() != "http.ResponseWriter" {
+		err = errorInvalidActionSchema
+	} else if methodBody.Type().In(1).String() != "*http.Request" {
+		err = errorInvalidActionSchema
+	}
+
+	if err != nil {
+		fmt.Println("error", err.Error())
+		os.Exit(0)
+	}
+
 	methodHandler := methodBody.Interface().(func(w http.ResponseWriter, r *http.Request))
 	http.HandleFunc(routePath, methodHandler)
 
 	if Debug {
-		fmt.Println("route", routePath)
 		fmt.Println("   ->", actionMap)
 	}
 }
