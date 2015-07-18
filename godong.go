@@ -42,9 +42,9 @@ func getRoutePath(method reflect.Method, controllerName string) string {
 		result = strings.Replace(result, Separator, actionSlash, -1)
 
 		return result
-	}())
+	}
 
-	routePath := actionSlash + controllerName + validMethodName
+	routePath := actionSlash + controllerName + validMethodName()
 
 	if UrlMode == UrlModeDashed {
 		reg, err := regexp.Compile("([a-z])([A-Z])")
