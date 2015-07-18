@@ -58,7 +58,7 @@ func getRoutePath(method reflect.Method, controllerName string) string {
 	return routePath
 }
 
-func handleRoute(reflectType reflect.Type, reflectValue reflect.Value, i int, isDefaultAction ...bool) {
+func handleRoute(reflectType reflect.Type, reflectValue reflect.Value, i int) {
 	controllerName := reflect.Indirect(reflectValue).Type().Name()
 	method := reflectType.Method(i)
 	methodBody := reflectValue.MethodByName(method.Name)
