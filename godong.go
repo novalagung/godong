@@ -29,18 +29,8 @@ func Route(o interface{}) {
 	var reflectType = reflect.TypeOf(o)
 	var reflectValue = reflect.ValueOf(o)
 
-	var controllerName = reflect.Indirect(reflectValue).Type().Name()
-
 	for i := 0; i < reflectType.NumMethod(); i++ {
-		method := reflectType.Method(i)
-		routePath := getRoutePath(method, controllerName)
-		actionMap := fmt.Sprintf("%s%s%s", controllerName, actionMapSeparator, method.Name)
-
-		if actionMap == DefaultAction {
-			handleRoute(reflectValue, method, controllerName, actionSlash, actionMap)
-		}
-
-		handleRoute(reflectValue, method, controllerName, routePath, actionMap)
+		handleRoute(reflectType, reflectValue, i)
 	}
 }
 
@@ -68,25 +58,32 @@ func getRoutePath(method reflect.Method, controllerName string) string {
 	return routePath
 }
 
-func handleRoute(reflectValue reflect.Value, method reflect.Method, controllerName, routePath string, actionMap string) {
+func handleRoute(reflectType reflect.Type, reflectValue reflect.Value, i int, isDefaultAction ...bool) {
+	controllerName := reflect.Indirect(reflectValue).Type().Name()
+	method := reflectType.Method(i)
+	methodBody := reflectValue.MethodByName(method.Name)
+	routePath := getRoutePath(method, controllerName)
+	actionMap := fmt.Sprintf("%s%s%s", controllerName, actionMapSeparator, method.Name)
+
 	if Debug {
 		fmt.Println("route", routePath)
 	}
 
-	var err error
+	checkError := (func() error {
+		var errorInvalidActionSchema error = errors.New(fmt.Sprintf("Invalid action parameter.\n      Action %s should be written in:\n      func (d *%s) %s (w http.ResponseWriter, r *http.Request)", actionMap, controllerName, method.Name))
 
-	errorInvalidActionSchema := errors.New(fmt.Sprintf("Invalid action parameter.\n      Action %s should be written in:\n      func (d *%s) %s (w http.ResponseWriter, r *http.Request)", actionMap, controllerName, method.Name))
-	methodBody := reflectValue.MethodByName(method.Name)
+		if methodBody.Type().NumIn() != 2 {
+			return errorInvalidActionSchema
+		} else if methodBody.Type().In(0).String() != "http.ResponseWriter" {
+			return errorInvalidActionSchema
+		} else if methodBody.Type().In(1).String() != "*http.Request" {
+			return errorInvalidActionSchema
+		}
 
-	if methodBody.Type().NumIn() != 2 {
-		err = errorInvalidActionSchema
-	} else if methodBody.Type().In(0).String() != "http.ResponseWriter" {
-		err = errorInvalidActionSchema
-	} else if methodBody.Type().In(1).String() != "*http.Request" {
-		err = errorInvalidActionSchema
-	}
+		return nil
+	})
 
-	if err != nil {
+	if err := checkError(); err != nil {
 		fmt.Println("error", err.Error())
 		os.Exit(0)
 	}
@@ -96,5 +93,14 @@ func handleRoute(reflectValue reflect.Value, method reflect.Method, controllerNa
 
 	if Debug {
 		fmt.Println("   ->", actionMap)
+	}
+
+	if actionMap == DefaultAction {
+		http.HandleFunc(actionSlash, methodHandler)
+
+		if Debug {
+			fmt.Println("route", actionSlash)
+			fmt.Println("   ->", actionMap)
+		}
 	}
 }

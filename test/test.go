@@ -8,6 +8,7 @@ import (
 
 func main() {
 	godong.Debug = true
+	godong.DefaultAction = "Dashboard.Action_Index"
 	godong.Route(&controller.Dashboard{})
 	godong.Route(&controller.Analytic{})
 
