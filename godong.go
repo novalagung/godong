@@ -11,20 +11,20 @@ import (
 )
 
 const (
-	UrlModeDashed      int    = 0
-	UrlModeCapitalized int    = 1
-	actionSlash        string = "/"
-	actionMapSeparator string = "."
+	UrlModeDashed             int    = 0
+	UrlModeCapitalized        int    = 1
+	actionSlash               string = "/"
+	actionSeparator           string = "_"
+	actionControllerSeparator string = "."
+	actionIndexName           string = "Index"
+	actionPrefix              string = "Action"
 )
 
 var (
-	Debug           bool   = false
-	Prefix          string = "Action"
-	ActionIndexName string = "Index"
-	Separator       string = "_"
-	DefaultAction   string = ""
-	HiddenIndex     bool   = false
-	UrlMode         int    = UrlModeDashed
+	Debug         bool   = false
+	DefaultAction string = ""
+	HiddenIndex   bool   = false
+	UrlMode       int    = UrlModeDashed
 )
 
 func Route(o interface{}) {
@@ -40,8 +40,8 @@ func getRoutePath(method reflect.Method, controllerName string) string {
 	validMethodName := (func() string {
 		result := method.Name
 
-		result = strings.Replace(result, Prefix, "", -1)
-		result = strings.Replace(result, Separator, actionSlash, -1)
+		result = strings.Replace(result, actionPrefix, "", -1)
+		result = strings.Replace(result, actionSeparator, actionSlash, -1)
 
 		return result
 	})
@@ -65,7 +65,7 @@ func handleRoute(reflectType reflect.Type, reflectValue reflect.Value, i int) {
 	method := reflectType.Method(i)
 	methodBody := reflectValue.MethodByName(method.Name)
 	routePath := getRoutePath(method, controllerName)
-	actionMap := fmt.Sprintf("%s%s%s", controllerName, actionMapSeparator, method.Name)
+	actionMap := fmt.Sprintf("%s%s%s", controllerName, actionControllerSeparator, method.Name)
 
 	if Debug {
 		fmt.Println("route", routePath)
@@ -97,7 +97,7 @@ func handleRoute(reflectType reflect.Type, reflectValue reflect.Value, i int) {
 		fmt.Println("   ->", actionMap)
 	}
 
-	if HiddenIndex && method.Name == fmt.Sprintf("%s%s%s", Prefix, Separator, ActionIndexName) {
+	if HiddenIndex && method.Name == fmt.Sprintf("%s%s%s", actionPrefix, actionSeparator, actionIndexName) {
 		routePathWithoutIndex := strings.Join(strings.Split(routePath, actionSlash)[:2], actionSlash)
 		http.HandleFunc(routePathWithoutIndex, methodHandler)
 		if Debug {
