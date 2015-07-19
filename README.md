@@ -26,18 +26,18 @@ Method's name will become route name, and method's body will applied as callback
 package controller
 
 import (
-	"fmt"
-	"net/http"
+    "fmt"
+    "net/http"
 )
 
 type Dashboard struct{}
 
 func (d *Dashboard) Action_Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "/dashboard/index")
+    fmt.Fprintf(w, "/dashboard/index")
 }
 
 func (d *Dashboard) Action_AboutUs(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "/dashboard/about-us")
+    fmt.Fprintf(w, "/dashboard/about-us")
 }
 ```
 
@@ -47,15 +47,15 @@ On `main` package, include the package of our `struct`. Also include the `godong
 package main
 
 import (
-	"github.com/novalagung/godong"
-	"github.com/novalagung/test/controller"
-	"net/http"
+    "github.com/novalagung/godong"
+    "github.com/novalagung/test/controller"
+    "net/http"
 )
 
 func main() {
-	godong.Route(&controller.Dashboard{})
+    godong.Route(&controller.Dashboard{})
 
-	http.ListenAndServe(":3000", nil)
+    http.ListenAndServe(":3000", nil)
 }
 ```
 
@@ -63,7 +63,104 @@ Godong only cover routes declaration. Thats make `http.ListenAndServer` need to 
 
 Documentation
 ======
-Not yet.
+
+Godong will register all methods of applied struct as route of `http.HandleRoute`.
+
+Basically how to use godong is just by creating new instance of the controller's struct, then pass it by reference through `godong.Route`.
+
+The generated route name will be `/controller/action`. 
+
+On the routing process, godong will do several things over action method before it applied as route.
+
+* Add *slash* character before controller name
+* Separate controller and action name using *slash*
+* Remove *Action_* prefix
+* Convert *underscore* of action name to *slash*
+* Separate capitalized action name using *dash*
+* Then convert the action name to lower case
+
+Example:
+
+```
+Controller action : Dashboard.Action_AboutUs
+generated route   : /dashboard/about-us
+
+Controller action : DataAnalytic.Action_Data_GetData
+generated route   : /data-analytic/data/get-data
+```
+
+There are some other things which is configurable.
+
+### Show applied routes 
+
+Set value `DebugMode` to `true`, so whenever `.godong.Route` called, all actions which are successfully registered will printed. Also detailed error message will shown (if there is an error) by enabling this configuration.
+
+```go
+godong.Debug = true
+godong.Route(&controller.Dashboard{}
+```
+
+This is the sample output
+
+![Debug mode enabled](http://oi61.tinypic.com/4ut107.jpg)
+
+### Set default action
+
+All routes will defined on schema `/controller/action`. To define the `/` route, fill the`godong.DefaultAction` using action name of picked controller. Please see below example.
+
+```go
+godong.Debug = true
+godong.DefaultAction = "Dashboard.Action_Index"
+godong.Route(&controller.Dashboard{})
+godong.Route(&controller.Analytic{})
+```
+
+`Dashboard.Action_Index` mean that we will use `Action_Index` method of struct `Dashboard` as `/` route.
+
+![Default action enabled](http://oi60.tinypic.com/a5dtgh.jpg)
+
+### Enable hidden index route
+
+Godong will route index action as `/controller/index`. It's possible to make route `/controller` only for index action by change the value of `godong.HiddenIndex` to `true`. 2 routes will be registered using same handler: `/controller/index` and `/controller`
+
+```go
+godong.Debug = true
+godong.HiddenIndex = true
+godong.Route(&controller.Dashboard{})
+godong.Route(&controller.Analytic{})
+```
+
+If you enabled debug mode, the `/controller` will be displayed
+
+![Hidden index enabled](http://oi60.tinypic.com/23mpag.jpg)
+
+### Change url mode to Capitalized
+
+By default godong will make some changes on the action name, doing some conversion on it (you may have read the explanation on the opening of Documentation section).
+
+The default *dashed mode* url can be changed to *capitalized mode*. Below is the comparison of dashed and capitalized mode url.
+
+```
+controller action : Dashboard.Action_Index
+dashed mode       : /dashboard/index
+capitalized mode  : /Dashboard/Index
+
+controller action : DataAnalytic.Action_Data_GetData
+dashed mode       : /data-analytic/data/get-data
+capitalized mode  : /DataAnalytic/Data/GetData
+```
+
+How to do it, just by change the `godong.UrlMode`'s value to `godong.UrlModeCapitalized`.
+
+```go
+godong.Debug = true
+godong.UrlMode = godong.UrlModeCapitalized
+godong.Route(&controller.Dashboard{})
+```
+
+The default value of `godong.UrlMode` is `godong.UrlModeDashed`.
+
+![Capitalized mode url](http://oi59.tinypic.com/qozqd1.jpg)
 
 Contribution
 ======
@@ -72,23 +169,3 @@ Feel free to add contribution to this project by fork -> pull request.
 License
 ======
 The MIT License (MIT)
-
-Copyright (c) 2015 Noval Agung Prayogo
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
