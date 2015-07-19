@@ -42,7 +42,7 @@ func getRoutePath(method reflect.Method, controllerName string) string {
 		result = strings.Replace(result, Separator, actionSlash, -1)
 
 		return result
-	}
+	})
 
 	routePath := actionSlash + controllerName + validMethodName()
 
