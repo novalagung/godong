@@ -15,9 +15,6 @@ a {
   a:hover {
     text-decoration: underline; }
 
-.main-content > p:first-child > img {
-  float: right; }
-
 .btn {
   display: inline-block;
   margin-bottom: 1rem;

@@ -19,12 +19,12 @@
     </section>
 
     <section class="main-content">
-      <p><img src="http://oi59.tinypic.com/2v29m5g.jpg" alt="Godong logo"></p>
+      <p><img src="http://oi59.tinypic.com/2v29m5g.jpg" alt="Godong logo" align="right"></p>
 
 <h1>
 <a id="godong" class="anchor" href="#godong" aria-hidden="true"><span class="octicon octicon-link"></span></a>Godong</h1>
 
-<p>Easiest dynamic http route handler for golang</p>
+<p>Easiest dynamic http route handler for golang.</p>
 
 <h1>
 <a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h1>
@@ -84,7 +84,165 @@
 <h1>
 <a id="documentation" class="anchor" href="#documentation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Documentation</h1>
 
-<p>Not yet.</p>
+<p>Godong will register all methods of applied struct as route on <code>http.HandleRoute</code>.</p>
+
+<p>Basically how to use godong is just by creating new instance of the controller's struct, then pass it by reference through <code>godong.Route</code>.</p>
+
+<p>The generated route name will be <code>/controller/action</code>. </p>
+
+<p>On the routing process, godong will do several things over action method before it applied as route.</p>
+
+<ul>
+<li>Add <em>slash</em> character before controller name</li>
+<li>Separate controller and action name using <em>slash</em>
+</li>
+<li>Remove <em>Action_</em> prefix</li>
+<li>Convert <em>underscore</em> of action name to <em>slash</em>
+</li>
+<li>Separate capitalized action name using <em>dash</em>
+</li>
+<li>Then convert the action name to lower case</li>
+</ul>
+
+<p>Example:</p>
+
+<pre><code>Controller action : Dashboard.Action_AboutUs
+generated route   : /dashboard/about-us
+
+Controller action : DataAnalytic.Action_Data_GetData
+generated route   : /data-analytic/data/get-data
+</code></pre>
+
+<p>There are some other things which is configurable.</p>
+
+<h3>
+<a id="show-applied-routes" class="anchor" href="#show-applied-routes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Show applied routes</h3>
+
+<p>Set value <code>DebugMode</code> to <code>true</code>, so whenever <code>.godong.Route</code> called, all actions which are successfully registered will printed. Also detailed error message will shown (if there is an error) by enabling this configuration.</p>
+
+<div class="highlight highlight-go"><pre>godong.<span class="pl-smi">Debug</span> = <span class="pl-c1">true</span>
+godong.<span class="pl-c1">Route</span>(&amp;controller.<span class="pl-smi">Dashboard</span>{})</pre></div>
+
+<p>Below is the sample output.</p>
+
+<p><img src="http://oi61.tinypic.com/4ut107.jpg" alt="Debug mode enabled"></p>
+
+<h3>
+<a id="set-default-action" class="anchor" href="#set-default-action" aria-hidden="true"><span class="octicon octicon-link"></span></a>Set default action</h3>
+
+<p>All routes will defined on schema <code>/controller/action</code>. To define the <code>/</code> route, fill the <code>godong.DefaultAction</code> using action name of picked controller. Please see example below.</p>
+
+<div class="highlight highlight-go"><pre>godong.<span class="pl-smi">Debug</span> = <span class="pl-c1">true</span>
+godong.<span class="pl-smi">DefaultAction</span> = <span class="pl-s"><span class="pl-pds">"</span>Dashboard.Action_Index<span class="pl-pds">"</span></span>
+godong.<span class="pl-c1">Route</span>(&amp;controller.<span class="pl-smi">Dashboard</span>{})
+godong.<span class="pl-c1">Route</span>(&amp;controller.<span class="pl-smi">Analytic</span>{})</pre></div>
+
+<p><code>Dashboard.Action_Index</code> mean that we will use <code>Action_Index</code> method of struct <code>Dashboard</code> as <code>/</code> route.</p>
+
+<p><img src="http://oi60.tinypic.com/a5dtgh.jpg" alt="Default action enabled"></p>
+
+<h3>
+<a id="enable-hidden-index-route" class="anchor" href="#enable-hidden-index-route" aria-hidden="true"><span class="octicon octicon-link"></span></a>Enable hidden index route</h3>
+
+<p>Godong will route index action as <code>/controller/index</code>. It's possible to make route <code>/controller</code> only for index action by change the value of <code>godong.HiddenIndex</code> to <code>true</code>. 2 routes will be registered using same handler: <code>/controller/index</code> and <code>/controller</code>.</p>
+
+<div class="highlight highlight-go"><pre>godong.<span class="pl-smi">Debug</span> = <span class="pl-c1">true</span>
+godong.<span class="pl-smi">HiddenIndex</span> = <span class="pl-c1">true</span>
+godong.<span class="pl-c1">Route</span>(&amp;controller.<span class="pl-smi">Dashboard</span>{})
+godong.<span class="pl-c1">Route</span>(&amp;controller.<span class="pl-smi">Analytic</span>{})</pre></div>
+
+<p>If you enabled debug mode, the <code>/controller</code> will be displayed.</p>
+
+<p><img src="http://oi60.tinypic.com/23mpag.jpg" alt="Hidden index enabled"></p>
+
+<h3>
+<a id="change-url-mode-to-capitalized" class="anchor" href="#change-url-mode-to-capitalized" aria-hidden="true"><span class="octicon octicon-link"></span></a>Change url mode to Capitalized</h3>
+
+<p>By default godong will make some changes on the action name, doing some conversion on it (you may have read the explanation on the opening of Documentation section).</p>
+
+<p>The default <em>dashed mode</em> url can be changed to <em>capitalized mode</em>. Below is the comparison of dashed and capitalized mode url.</p>
+
+<pre><code>controller action : Dashboard.Action_Index
+dashed mode       : /dashboard/index
+capitalized mode  : /Dashboard/Index
+
+controller action : DataAnalytic.Action_Data_GetData
+dashed mode       : /data-analytic/data/get-data
+capitalized mode  : /DataAnalytic/Data/GetData
+</code></pre>
+
+<p>How to do it, just by change the <code>godong.UrlMode</code>'s value to <code>godong.UrlModeCapitalized</code>.</p>
+
+<div class="highlight highlight-go"><pre>godong.<span class="pl-smi">Debug</span> = <span class="pl-c1">true</span>
+godong.<span class="pl-smi">UrlMode</span> = godong.<span class="pl-smi">UrlModeCapitalized</span>
+godong.<span class="pl-c1">Route</span>(&amp;controller.<span class="pl-smi">Dashboard</span>{})</pre></div>
+
+<p>The default value of <code>godong.UrlMode</code> is <code>godong.UrlModeDashed</code>.</p>
+
+<p><img src="http://oi59.tinypic.com/qozqd1.jpg" alt="Capitalized mode url"></p>
+
+<h1>
+<a id="api-reference" class="anchor" href="#api-reference" aria-hidden="true"><span class="octicon octicon-link"></span></a>API Reference</h1>
+
+<h3>
+<a id="godongroute" class="anchor" href="#godongroute" aria-hidden="true"><span class="octicon octicon-link"></span></a>godong.Route()</h3>
+
+<p>Apply action method registered struct as route <code>http.HandleRoute</code>. Require one parameter, instance of the struct, need to be passed by reference.</p>
+
+<p>Example:</p>
+
+<div class="highlight highlight-go"><pre>godong.<span class="pl-c1">Route</span>(&amp;controller.<span class="pl-smi">Dashboard</span>{})</pre></div>
+
+<h3>
+<a id="godongdebug" class="anchor" href="#godongdebug" aria-hidden="true"><span class="octicon octicon-link"></span></a>godong.Debug</h3>
+
+<p>Show all route map on the command line if set to true. </p>
+
+<p>This property is boolean type. Default value is <code>false</code>.</p>
+
+<p>Example:</p>
+
+<div class="highlight highlight-go"><pre>godong.<span class="pl-smi">Debug</span> = <span class="pl-c1">true</span></pre></div>
+
+<h3>
+<a id="godongdefaultaction" class="anchor" href="#godongdefaultaction" aria-hidden="true"><span class="octicon octicon-link"></span></a>godong.DefaultAction</h3>
+
+<p>Set <code>/</code> url using registered action.</p>
+
+<p>This property is boolean type. Default value is <code>""</code>.</p>
+
+<p>Example:</p>
+
+<div class="highlight highlight-go"><pre>godong.<span class="pl-smi">DefaultAction</span> = <span class="pl-s"><span class="pl-pds">"</span>Dashboard.Action_Index<span class="pl-pds">"</span></span></pre></div>
+
+<h3>
+<a id="godonghiddenindex" class="anchor" href="#godonghiddenindex" aria-hidden="true"><span class="octicon octicon-link"></span></a>godong.HiddenIndex</h3>
+
+<p>Enable <code>/controller</code> route which is represent the <code>/controller/index</code> route.</p>
+
+<p>This property is boolean type. Default value is <code>false</code>.</p>
+
+<p>Example:</p>
+
+<div class="highlight highlight-go"><pre>godong.<span class="pl-smi">HiddenIndex</span> = <span class="pl-c1">true</span></pre></div>
+
+<h3>
+<a id="godongurlmode" class="anchor" href="#godongurlmode" aria-hidden="true"><span class="octicon octicon-link"></span></a>godong.UrlMode</h3>
+
+<p>Pick the url mode, is it dashed or capitalized.</p>
+
+<p>This property is enum type. Availables option are:</p>
+
+<ul>
+<li>godong.UrlModeDashed</li>
+<li>godong.UrlModeCapitalized</li>
+</ul>
+
+<p>Default value is <code>godong.UrlModeDashed</code>.</p>
+
+<p>Example:</p>
+
+<div class="highlight highlight-go"><pre>godong.<span class="pl-smi">UrlMode</span> = <span class="pl-v">UrlModeCapitalized</span></pre></div>
 
 <h1>
 <a id="contribution" class="anchor" href="#contribution" aria-hidden="true"><span class="octicon octicon-link"></span></a>Contribution</h1>
@@ -95,26 +253,6 @@
 <a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h1>
 
 <p>The MIT License (MIT)</p>
-
-<p>Copyright (c) 2015 Noval Agung Prayogo</p>
-
-<p>Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:</p>
-
-<p>The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.</p>
-
-<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.</p>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/novalagung/godong">Godong</a> is maintained by <a href="https://github.com/novalagung">novalagung</a>.</span>
