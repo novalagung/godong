@@ -18,11 +18,13 @@ const (
 )
 
 var (
-	Debug         bool   = false
-	Prefix        string = "Action"
-	Separator     string = "_"
-	DefaultAction string = ""
-	UrlMode       int    = UrlModeDashed
+	Debug           bool   = false
+	Prefix          string = "Action"
+	ActionIndexName string = "Index"
+	Separator       string = "_"
+	DefaultAction   string = ""
+	HiddenIndex     bool   = false
+	UrlMode         int    = UrlModeDashed
 )
 
 func Route(o interface{}) {
@@ -93,6 +95,15 @@ func handleRoute(reflectType reflect.Type, reflectValue reflect.Value, i int) {
 
 	if Debug {
 		fmt.Println("   ->", actionMap)
+	}
+
+	if HiddenIndex && method.Name == fmt.Sprintf("%s%s%s", Prefix, Separator, ActionIndexName) {
+		routePathWithoutIndex := strings.Join(strings.Split(routePath, actionSlash)[:2], actionSlash)
+		http.HandleFunc(routePathWithoutIndex, methodHandler)
+		if Debug {
+			fmt.Println("route", routePathWithoutIndex)
+			fmt.Println("   ->", actionMap)
+		}
 	}
 
 	if actionMap == DefaultAction {
