@@ -2,7 +2,7 @@
 
 Godong
 ======
-Easiest dynamic http route handler for golang
+Easiest dynamic http route handler for golang.
 
 Introduction
 ======
@@ -64,7 +64,7 @@ Godong only cover routes declaration. Thats make `http.ListenAndServer` need to 
 Documentation
 ======
 
-Godong will register all methods of applied struct as route of `http.HandleRoute`.
+Godong will register all methods of applied struct as route on `http.HandleRoute`.
 
 Basically how to use godong is just by creating new instance of the controller's struct, then pass it by reference through `godong.Route`.
 
@@ -97,16 +97,16 @@ Set value `DebugMode` to `true`, so whenever `.godong.Route` called, all actions
 
 ```go
 godong.Debug = true
-godong.Route(&controller.Dashboard{}
+godong.Route(&controller.Dashboard{})
 ```
 
-This is the sample output
+Below is the sample output.
 
 ![Debug mode enabled](http://oi61.tinypic.com/4ut107.jpg)
 
 ### Set default action
 
-All routes will defined on schema `/controller/action`. To define the `/` route, fill the`godong.DefaultAction` using action name of picked controller. Please see below example.
+All routes will defined on schema `/controller/action`. To define the `/` route, fill the `godong.DefaultAction` using action name of picked controller. Please see example below.
 
 ```go
 godong.Debug = true
@@ -121,7 +121,7 @@ godong.Route(&controller.Analytic{})
 
 ### Enable hidden index route
 
-Godong will route index action as `/controller/index`. It's possible to make route `/controller` only for index action by change the value of `godong.HiddenIndex` to `true`. 2 routes will be registered using same handler: `/controller/index` and `/controller`
+Godong will route index action as `/controller/index`. It's possible to make route `/controller` only for index action by change the value of `godong.HiddenIndex` to `true`. 2 routes will be registered using same handler: `/controller/index` and `/controller`.
 
 ```go
 godong.Debug = true
@@ -130,7 +130,7 @@ godong.Route(&controller.Dashboard{})
 godong.Route(&controller.Analytic{})
 ```
 
-If you enabled debug mode, the `/controller` will be displayed
+If you enabled debug mode, the `/controller` will be displayed.
 
 ![Hidden index enabled](http://oi60.tinypic.com/23mpag.jpg)
 
@@ -161,6 +161,71 @@ godong.Route(&controller.Dashboard{})
 The default value of `godong.UrlMode` is `godong.UrlModeDashed`.
 
 ![Capitalized mode url](http://oi59.tinypic.com/qozqd1.jpg)
+
+API Reference
+======
+### godong.Route()
+
+Apply action method registered struct as route `http.HandleRoute`. Require one parameter, instance of the struct, need to be passed by reference.
+
+Example:
+
+```go
+godong.Route(&controller.Dashboard{})
+```
+
+### godong.Debug
+
+Show all route map on the command line if set to true. 
+
+This property is boolean type. Default value is `false`.
+
+Example:
+
+```go
+godong.Debug = true
+```
+
+### godong.DefaultAction
+
+Set `/` url using registered action.
+
+This property is boolean type. Default value is `""`.
+
+Example:
+
+```go
+godong.DefaultAction = "Dashboard.Action_Index"
+```
+
+### godong.HiddenIndex
+
+Enable `/controller` route which is represent the `/controller/index` route.
+
+This property is boolean type. Default value is `false`.
+
+Example:
+
+```go
+godong.HiddenIndex = true
+```
+
+### godong.UrlMode
+
+Pick the url mode, is it dashed or capitalized.
+
+This property is enum type. Availables option are:
+
+* godong.UrlModeDashed
+* godong.UrlModeCapitalized
+
+Default value is `godong.UrlModeDashed`.
+
+Example:
+
+```go
+godong.UrlMode = UrlModeCapitalized
+```
 
 Contribution
 ======
