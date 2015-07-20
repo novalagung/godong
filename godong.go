@@ -28,11 +28,25 @@ var (
 )
 
 func Route(o interface{}) {
-	var reflectType = reflect.TypeOf(o)
-	var reflectValue = reflect.ValueOf(o)
+	reflectType := reflect.TypeOf(o)
+	reflectValue := reflect.ValueOf(o)
+	controllerName := reflect.Indirect(reflectValue).Type().Name()
 
 	for i := 0; i < reflectType.NumMethod(); i++ {
-		handleRoute(reflectType, reflectValue, i)
+		method := reflectType.Method(i)
+		routePath := getRoutePath(method, controllerName)
+		actionMap := fmt.Sprintf("%s%s%s", controllerName, actionControllerSeparator, method.Name)
+
+		handleRoute(reflectType, reflectValue, method, controllerName, actionMap, routePath)
+
+		if methodName := fmt.Sprintf("%s%s%s", actionPrefix, actionSeparator, actionIndexName); HiddenIndex && method.Name == methodName {
+			routePathWithoutIndex := strings.Join(strings.Split(routePath, actionSlash)[:2], actionSlash)
+			handleRoute(reflectType, reflectValue, method, controllerName, actionMap, routePathWithoutIndex)
+		}
+
+		if actionMap == DefaultAction {
+			handleRoute(reflectType, reflectValue, method, controllerName, actionMap, actionSlash)
+		}
 	}
 }
 
@@ -60,16 +74,8 @@ func getRoutePath(method reflect.Method, controllerName string) string {
 	return routePath
 }
 
-func handleRoute(reflectType reflect.Type, reflectValue reflect.Value, i int) {
-	controllerName := reflect.Indirect(reflectValue).Type().Name()
-	method := reflectType.Method(i)
+func handleRoute(reflectType reflect.Type, reflectValue reflect.Value, method reflect.Method, controllerName string, actionMap string, routePath string) {
 	methodBody := reflectValue.MethodByName(method.Name)
-	routePath := getRoutePath(method, controllerName)
-	actionMap := fmt.Sprintf("%s%s%s", controllerName, actionControllerSeparator, method.Name)
-
-	if Debug {
-		fmt.Println("route", routePath)
-	}
 
 	checkError := (func() error {
 		var errorInvalidActionSchema error = errors.New(fmt.Sprintf("Invalid action parameter.\n      Action %s should be written in:\n      func (d *%s) %s (w http.ResponseWriter, r *http.Request)", actionMap, controllerName, method.Name))
@@ -85,6 +91,10 @@ func handleRoute(reflectType reflect.Type, reflectValue reflect.Value, i int) {
 		return nil
 	})
 
+	if Debug {
+		fmt.Println("route", routePath)
+	}
+
 	if err := checkError(); err != nil {
 		fmt.Println("error", err.Error())
 		os.Exit(0)
@@ -95,23 +105,5 @@ func handleRoute(reflectType reflect.Type, reflectValue reflect.Value, i int) {
 
 	if Debug {
 		fmt.Println("   ->", actionMap)
-	}
-
-	if HiddenIndex && method.Name == fmt.Sprintf("%s%s%s", actionPrefix, actionSeparator, actionIndexName) {
-		routePathWithoutIndex := strings.Join(strings.Split(routePath, actionSlash)[:2], actionSlash)
-		http.HandleFunc(routePathWithoutIndex, methodHandler)
-		if Debug {
-			fmt.Println("route", routePathWithoutIndex)
-			fmt.Println("   ->", actionMap)
-		}
-	}
-
-	if actionMap == DefaultAction {
-		http.HandleFunc(actionSlash, methodHandler)
-
-		if Debug {
-			fmt.Println("route", actionSlash)
-			fmt.Println("   ->", actionMap)
-		}
 	}
 }
