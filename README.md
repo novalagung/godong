@@ -227,6 +227,10 @@ Example:
 godong.UrlMode = UrlModeCapitalized
 ```
 
+Release Notes
+======
+You may see complete release notes on [RELEASE.md](https://github.com/novalagung/godong/blob/master/RELEASE.md).
+
 Contribution
 ======
 Feel free to add contribution to this project by fork -> pull request.
